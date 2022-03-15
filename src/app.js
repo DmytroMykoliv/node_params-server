@@ -1,21 +1,28 @@
-'use strict';
+import http from 'http';
 
-/**
- * Implement sum function:
- *
- * Function takes 2 numbers and returns their sum
- *
- * sum(1, 2) === 3
- * sum(1, 11) === 12
- *
- * @param {number} a
- * @param {number} b
- *
- * @return {number}
- */
-function sum(a, b) {
-  // write code here
-  return a + b;
-}
+const PORT = process.env.PORT || 8080;
 
-module.exports = sum;
+const server = http.createServer((req, res) => {
+  const normalizedURL = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = normalizedURL.pathname.slice(1) || 'index.html';
+  const parts = normalizedURL.pathname.slice(1).split('/');
+  const query = Object.fromEntries(normalizedURL.searchParams.entries());
+
+  let result = `
+    <h1>Hello !!!</h1>
+    <h3>Enter query parameters in the URL &#9757;</h3>
+  `;
+
+  if (pathname !== 'index.html' || Object.keys(query).length > 0) {
+    result = JSON.stringify({
+      parts,
+      query,
+    });
+  }
+
+  res.end(result);
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on: http://localhost:${PORT}/`);
+});
